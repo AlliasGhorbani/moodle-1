@@ -1,0 +1,56 @@
+name: DevActions
+
+on:
+  push:
+    branches:
+      - main    # Only run on push to the 'main' branch
+  pull_request:
+    branches:
+      - main    # Optionally, you can trigger on pull requests as well
+
+jobs:
+  build:
+    runs-on: windows-latest    # Specify that the job runs on the Windows environment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2    # This action checks out the code from your repository
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0 # change to fit our moodle version
+          extensions: mbstring, intl, curl, xml, zip, soap, gd, mysqli
+          ini-values: memory_limit=512M, post_max_size=100M, upload_max_filesize=100M
+
+      - name: Install Composer dependencies
+        run: |
+          composer global config minimum-stability dev
+          composer global require moodlehq/moodle-cs
+
+
+      - name: Install mysql
+        run: |
+          choco install mysql --version=5.7.31 -y
+          Start-Service MySQL
+          mysql --version
+          mysql -u root -e "CREATE DATABASE moodle_test;"
+          mysql -u root -e "CREATE USER 'moodleuser'@'localhost' IDENTIFIED BY 'password';"
+          mysql -u root -e "GRANT ALL PRIVILEGES ON moodle_test.* TO 'moodleuser'@'localhost';"
+          mysql -u root -e "FLUSH PRIVILEGES;"
+      
+      
+      - name: moodle installation
+        run: |
+          copy config-dist.php config.php
+          (gc config.php) -replace 'your_database_name', 'moodle_test' | sc config.php
+          (gc config.php) -replace 'username', 'moodleuser' | sc config.php
+          (gc config.php) -replace 'password', 'password' | sc config.php
+          # Set other configuration variables as needed.
+          php admin\cli\install_database.php --agree-license --adminpass=adminpassword
+
+
+      # Tests will be specified here: (Php-unit)
+      - name: Run tests
+       #run: insert path for test folder
+      
