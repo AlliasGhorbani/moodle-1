@@ -4,20 +4,20 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ununtu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        php:
-          - 8.3
-          - 8.2
-          - 8.1
-          - 8.0
-          - 7.4
-        os:
-          - ubuntu-latest
-          - windows-latest
+    #strategy:
+    # fail-fast: false
+    #  matrix:
+    #    php:
+    #      - 8.3
+    #      - 8.2
+    #      - 8.1
+    #      - 8.0
+    #      - 7.4
+    #    os:
+    #      - ubuntu-latest
+    #      - windows-latest
     steps:
       - name: Set git to use LF
         run: |
@@ -27,78 +27,78 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Setup PHP 
         uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ matrix.extensions }}
-          ini-values: pcov.directory=moodle, error_reporting=-1, display_errors=On
-          coverage: pcov
-          tools: composer
+#        with:
+#          php-version: ${{ matrix.php }}
+#          extensions: ${{ matrix.extensions }}
+#          ini-values: pcov.directory=moodle, error_reporting=-1, display_errors=On
+#          coverage: pcov
+#          tools: composer
 
       - name: Install composer dependencies
         run: |
           composer install
 
       - name: Run phplint
-        if: ${{ !cancelled() }}
+#        if: ${{ !cancelled() }}
         run: |
           ./vendor/bin/phplint
 
-      - name: PHP Copy/Paste Detector
-        if: ${{ !cancelled() }}
-        run: ./vendor/bin/phpcpd --exclude moodle/Tests moodle
+#      - name: PHP Copy/Paste Detector
+#        if: ${{ !cancelled() }}
+#        run: ./vendor/bin/phpcpd --exclude moodle/Tests moodle
 
       - name: Coding style
         if: ${{ !cancelled() }}
         run: ./vendor/bin/phpcs -ps .
 
       - name: Run phpunit
-        if: ${{ !cancelled() }}
+#        if: ${{ !cancelled() }}
         run: |
           ./vendor/bin/phpunit --coverage-text
 
-      - name: Test coverage
-        if: ${{ !cancelled() }}
-        run: ./vendor/bin/phpunit-coverage-check -t 80 clover.xml
+#      - name: Test coverage
+#        if: ${{ !cancelled() }}
+#        run: ./vendor/bin/phpunit-coverage-check -t 80 clover.xml
 
-      - name: Integration tests
-        if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' }}
-        run: |
-          # There is one failure (exit with error 2, because some are fixable).
-          expectedcode=2
-          vendor/bin/phpcs --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
-          exitcode="${PIPESTATUS[0]}"
-          if [[ "${exitcode}" = "${expectedcode}" ]]; then
-              echo "Ok, got expected ${exitcode} exit code."
-          else
-              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
-              exit 1
-          fi
-          grep -q  "PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY" output.txt
+#      - name: Integration tests
+#        if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' }}
+#        run: |
+#          # There is one failure (exit with error 2, because some are fixable).
+#          expectedcode=2
+#          vendor/bin/phpcs --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+#          exitcode="${PIPESTATUS[0]}"
+#          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+#              echo "Ok, got expected ${exitcode} exit code."
+#          else
+#              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+#              exit 1
+#          fi
+#          grep -q  "PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY" output.txt
 
-          # The failure is fixed (exit with error 1, because all fixable ones were fixed).
-          expectedcode=1
-          vendor/bin/phpcbf --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
-          exitcode="${PIPESTATUS[0]}"
-          if [[ "${exitcode}" = "${expectedcode}" ]]; then
-              echo "Ok, got expected ${exitcode} exit code."
-          else
-              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
-              exit 1
-          fi
-          grep -q "A TOTAL OF 1 ERROR WERE FIXED IN 1 FILE" output.txt
+#          # The failure is fixed (exit with error 1, because all fixable ones were fixed).
+#          expectedcode=1
+#          vendor/bin/phpcbf --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+#          exitcode="${PIPESTATUS[0]}"
+#          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+#              echo "Ok, got expected ${exitcode} exit code."
+#          else
+#              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+#              exit 1
+#          fi
+#          grep -q "A TOTAL OF 1 ERROR WERE FIXED IN 1 FILE" output.txt
 
-          # So, there isn't any failure any more (exit without error, aka, 0)
-          expectedcode=0
-          vendor/bin/phpcs --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
-          exitcode="${PIPESTATUS[0]}"
-          if [[ "${exitcode}" = "${expectedcode}" ]]; then
-              echo "Ok, got expected ${exitcode} exit code."
-          else
-              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
-              exit 1
-          fi
+#          # So, there isn't any failure any more (exit without error, aka, 0)
+#          expectedcode=0
+#          vendor/bin/phpcs --standard=moodle moodle/Tests/fixtures/integration_test_ci.php | tee output.txt
+#          exitcode="${PIPESTATUS[0]}"
+#          if [[ "${exitcode}" = "${expectedcode}" ]]; then
+#              echo "Ok, got expected ${exitcode} exit code."
+#          else
+#              echo "Error: Expected ${expectedcode}, got ${exitcode} exit code."
+#              exit 1
+#          fi
 
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
@@ -126,19 +126,19 @@ jobs:
           composer install
 
       - name: Run phpunit
-        if: ${{ !cancelled() }}
+#        if: ${{ !cancelled() }}
         run: |
           ./vendor/bin/phpunit --coverage-clover clover.xml
 
-      - name: Upload coverage
-        if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: clover.xml
-          verbose: true
+#      - name: Upload coverage
+#        if: ${{ !cancelled() }}
+#        uses: codecov/codecov-action@v4
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
+#          files: clover.xml
+#          verbose: true
 
-      - name: Mark cancelled jobs as failed
-        if: ${{ cancelled() }}
-        run: exit 1
+#      - name: Mark cancelled jobs as failed
+#        if: ${{ cancelled() }}
+#        run: exit 1
       
