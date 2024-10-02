@@ -927,15 +927,15 @@ default_socket_timeout = 60
 ;extension=curl
 ;extension=ffi
 ;extension=ftp
-;extension=fileinfo
-;extension=gd
+extension=fileinfo
+extension=gd
 ;extension=gettext
 ;extension=gmp
-;extension=intl
+extension=intl
 ;extension=imap
 ;extension=mbstring
 ;extension=exif      ; Must be after mbstring as it depends on it
-;extension=mysqli
+extension=mysqli
 ;extension=oci8_12c  ; Use with Oracle Database 12c Instant Client
 ;extension=oci8_19  ; Use with Oracle Database 19 Instant Client
 ;extension=odbc
@@ -955,11 +955,11 @@ default_socket_timeout = 60
 
 ;extension=soap
 ;extension=sockets
-;extension=sodium
+extension=sodium
 ;extension=sqlite3
 ;extension=tidy
 ;extension=xsl
-;extension=zip
+extension=zip
 
 ;zend_extension=opcache
 
